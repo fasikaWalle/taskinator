@@ -8,3 +8,10 @@ var createTaskHandler = function () {
   tasksToDoEl.appendChild(listItemE1);
 };
 buttonE1.addEventListener("click", createTaskHandler);
+
+var headerContainer = document.querySelector("#header");
+var formSubmit = document.createElement("form");
+formSubmit.createElement("input");
+formSubmit.createElement("button");
+formSubmit.innerHTML = "hello";
+headerContainer.appendChild(formSubmit);
