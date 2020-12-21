@@ -17,6 +17,11 @@ var taskFormHandler = function (event,taskDataObj) {
   event.preventDefault();
   var taskNameInput = document.querySelector("input[name='task-name']").value;
   var dropDownInput = document.querySelector("select[name='task-type']").value;
+  if(!taskNameInput||!dropDownInput){
+    alert("please insert valid input");
+    return false;
+  }
+  formEl.reset();
   var taskDataObj={
     name:taskNameInput,
     type:dropDownInput,
