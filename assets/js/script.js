@@ -3,12 +3,15 @@ var formEl = document.querySelector("#task-form");
 var tasksToDoEl = document.querySelector("#tasks-to-do");
 var tasksInProgressEl = document.querySelector("#tasks-in-progress");
 var tasksCompletedEl = document.querySelector("#tasks-completed");
+var listItems = document.querySelector(".task-list");
 var taskIdCounter = 0;
 var createTaskE1 = function (taskDataObj) {
   var listItemEl = document.createElement("li");
   listItemEl.className = "task-item";
   //adding custom data attribute t0 add taskidcounter to the list
   listItemEl.setAttribute("data-task-id", taskIdCounter);
+  //create a draggable attribute to drag the element and drop to another place
+  listItemEl.setAttribute("draggable", "true");
   var taskInfoEl = document.createElement("div");
   taskInfoEl.className = "task-info";
   listItemEl.innerHTML =
@@ -30,6 +33,7 @@ var createTaskE1 = function (taskDataObj) {
 var taskFormHandler = function (event, taskDataObj) {
   event.preventDefault();
   var taskNameInput = document.querySelector("input[name='task-name']").value;
+
   var dropDownInput = document.querySelector("select[name='task-type']").value;
   if (!taskNameInput || !dropDownInput) {
     alert("please insert valid input");
@@ -76,7 +80,7 @@ var createTaskActions = function (taskId) {
   statusSelectEl.setAttribute("name", "status-change");
   statusSelectEl.setAttribute("data-task-id", taskId);
   actionContainerE1.appendChild(statusSelectEl);
-  var statusChoices = ["to do", "In Progress", "Completed"];
+  var statusChoices = ["tasks to do", "tasks in Progress", "tasks completed"];
   for (var i = 0; i < statusChoices.length; i++) {
     var statusOptionEl = document.createElement("option");
     statusOptionEl.setAttribute("value", statusChoices[i]);
@@ -87,11 +91,9 @@ var createTaskActions = function (taskId) {
   return actionContainerE1;
 };
 //submit used to fire the button which is found in the form
-
 var deleteButtonEl = document.createElement("button");
 // deleteButtonEl.addEventListener("click", myFunction);
 var pageContentEl = document.querySelector("#page-content");
-
 function taskButtonHandler(event) {
   // console.log(event.target);
   //event.target used to find the element who trigger the event
@@ -149,14 +151,67 @@ var taskStatusChangeHandler = function (event) {
   var statusValue = event.target.value.toLowerCase();
 
   // find the parent task item element based on the id
-  if (statusValue === "to do") {
+  if (statusValue === "tasks to do") {
     tasksToDoEl.appendChild(taskSelected);
-  } else if (statusValue === "in progress") {
+  } else if (statusValue === "tasks in progress") {
     tasksInProgressEl.appendChild(taskSelected);
-  } else if (statusValue === "completed") {
+  } else if (statusValue === "tasks completed") {
     tasksCompletedEl.appendChild(taskSelected);
   }
 };
+function dropTaskHandler(event) {
+  var taskId = event.dataTransfer.getData("plain/text");
+  console.log(taskId);
+  var draggableElement = document.querySelector(
+    "[data-task-id= '" + taskId + "']"
+  );
+
+  var dropzone = event.target.closest(".task-list");
+  var statusSelectEl = document.querySelector("select[name='status-change']");
+  var statusType = dropzone.id;
+
+  console.log(statusType);
+  switch (statusType) {
+    case "tasks-to-do":
+      statusSelectEl.selectedIndex = 0;
+      break;
+    case "tasks-in-progress":
+      statusSelectEl.selectedIndex = 1;
+      break;
+    case "tasks-completed":
+      statusSelectEl.selectedIndex = 2;
+      break;
+    default:
+      console.log("Something went wrong!");
+      break;
+  }
+  dropzone.appendChild(draggableElement);
+}
+var dropZoneDragHandler = function (event) {
+  var taskList = event.target.closest(".task-list");
+  if (taskList) {
+    event.preventDefault();
+    taskList.setAttribute(
+      "style",
+      "background: rgba(68, 233, 255, 0.7); border-style: dashed;"
+    );
+  }
+};
+
+var dragTaskHandler = function (event) {
+  console.log(event.target);
+  var taskId = event.target.getAttribute("data-task-id");
+  event.dataTransfer.setData("plain/text", taskId);
+};
+function dragLeaveHandler(event) {
+  var taskListEl = event.target.closest(".task-list");
+  if (taskListEl) {
+    event.target.closest(".task-list").removeAttribute("style");
+  }
+}
+
+pageContentEl.addEventListener("drop", dropTaskHandler);
+//Adding the parentheses will call this function immediately, so we pass the reference to the function as a callback, which is triggered by the event.
 // Create a new task
 formEl.addEventListener("submit", taskFormHandler);
 
@@ -165,3 +220,19 @@ pageContentEl.addEventListener("click", taskButtonHandler);
 
 // for changing the status
 pageContentEl.addEventListener("change", taskStatusChangeHandler);
+//for draggable
+pageContentEl.addEventListener("dragstart", dragTaskHandler);
+
+pageContentEl.addEventListener("dragover", dropZoneDragHandler);
+pageContentEl.addEventListener("dragleave", dragLeaveHandler);
+// function add() {
+//   return;
+//   {
+//     name: "fasika";
+//   }
+// }
+// console.log(add());
+// var x = 12;
+// localStorage.setItem("number", "12");
+// var y = localStorage.getItem("number");
+// console.log(y);
